@@ -5,7 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Economic Policies Game</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+  apiKey: "AIzaSyAd6-y23Z0yc_yE5-UhE67NcL9D908fZj4",
+  authDomain: "me-showcase-db.firebaseapp.com",
+  projectId: "me-showcase-db",
+  storageBucket: "me-showcase-db.firebasestorage.app",
+  messagingSenderId: "116488924217",
+  appId: "1:116488924217:web:600ca47af5c7145dce71e8",
+  measurementId: "G-PGX80HNH95"
+};
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         function checkSelection() {
             const checkboxes = document.querySelectorAll('input[name="policies"]:checked');
             if (checkboxes.length !== 5) {
@@ -72,31 +88,17 @@
             }
         }
 
-        async function saveData(name, score, selectedPolicies) {
-            const url = 'https://script.google.com/a/macros/gsv.ac.in/s/AKfycby_jGvTWjUwCrogHuDTALIQFKYP2QQJSiPeAXzQuY9Pb8W4V3dJGBvp-0EWQ9v2AFeGlA/exec';
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        name: name,
-                        score: score,
-                        selectedPolicies: selectedPolicies
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const responseData = await response.json();
-                console.log('Data sent to Google Sheets successfully:', responseData);
-
-            } catch (error) {
-                console.error('Error sending data to Google Sheets:', error);
-            }
+        function saveData(name, score, selectedPolicies) {
+            const newEntryRef = database.ref('contestants').push();
+            newEntryRef.set({
+                name: name,
+                score: score,
+                selectedPolicies: selectedPolicies
+            }).then(() => {
+                console.log('Data saved successfully.');
+            }).catch((error) => {
+                console.error('Error saving data:', error);
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
